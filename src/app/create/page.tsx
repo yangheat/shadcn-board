@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 
 // CSS
 import styles from './page.module.scss'
+import BasicBoard from '@/components/common/board/BasicBoard'
 
 function page() {
   return (
@@ -42,7 +43,7 @@ function page() {
         </div>
       </header>
       <main className={styles.container__body}>
-        <div className={styles.container__body__infoBox}>
+        {/* <div className={styles.container__body__infoBox}>
           <span className={styles.title}>There is no board yet.</span>
           <span className={styles.subTitle}>
             Click the button and start flashing!
@@ -55,7 +56,8 @@ function page() {
               height={100}
             />
           </button>
-        </div>
+        </div> */}
+        <BasicBoard />
       </main>
     </div>
   )
