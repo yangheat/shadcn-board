@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
-import { Roboto, Geist, Geist_Mono } from 'next/font/google'
+import { Roboto } from 'next/font/google'
+// Shadcn UI
+import { Toaster } from '@/components/ui/sonner'
 // 전역 CSS
 import '@/styles/globals.css'
 import SideNavigation from '@/components/common/navigation/SideNavigation'
@@ -24,6 +26,7 @@ export default function RootLayout({
       <body className={roboto.className}>
         <SideNavigation />
         {children}
+        <Toaster />
       </body>
     </html>
   )
