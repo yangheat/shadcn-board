@@ -1,5 +1,7 @@
 'use client'
 
+import { useState } from 'react'
+import { supabase } from '@/utils/supabase'
 // Component
 import LabelCalendar from '@/components/calendar/LabelCalendar'
 import MDEditor from '@uiw/react-md-editor'
@@ -19,30 +21,40 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { toast } from 'sonner'
 // CSS
 import styles from './MarkdownDialog.module.scss'
-import { useState } from 'react'
 
 function MarkdownDialog() {
   const [title, setTitle] = useState<string>('')
-  const [contents, setContents] = useState<string | undefined>(
+  const [content, setContent] = useState<string | undefined>(
     '**Hello, World!!**'
   )
 
   // Supabase에 저장
-  const onSubmit = () => {
+  const onSubmit = async () => {
     console.log('함수 호출')
 
-    if (title || contents) {
+    if (!title || !content) {
       toast('기입되지 않은 데이터(값)가 있습니다.', {
-        // description: '제목, 날짜 혹은 컨텐츠 값을 모두 작성해주세요.'
-        description: (
-          <span style={{ color: '#3f3f3f' }}>
-            Your event was successfully created.
-          </span>
-        )
+        description: '제목, 날짜 혹은 컨텐츠 값을 모두 작성해주세요.'
       })
       return
     } else {
       // Supabase 데이터베이스 연동
+      const { data, error, status } = await supabase
+        .from('todos')
+        .insert([{ title, content }])
+        .select()
+      if (error) {
+        console.log(error)
+        toast.error('에러가 발생했습니다.', {
+          description: '콘솔 창에 출력된 에러를 확인하세요.'
+        })
+      }
+
+      if (status === 201) {
+        toast.success('생성 완료!', {
+          description: '작성한 글이 Supabase에 올바르게 저장되었습니다.'
+        })
+      }
     }
   }
   return (
@@ -78,9 +90,9 @@ function MarkdownDialog() {
           <Separator />
           <div className={styles.dialog__markdown}>
             <MDEditor
-              value={contents}
+              value={content}
               height={100 + '%'}
-              onChange={setContents}
+              onChange={setContent}
             />
           </div>
         </DialogHeader>
