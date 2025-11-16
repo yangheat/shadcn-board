@@ -1,6 +1,12 @@
+'use client'
+
 import { Button } from '@/components/ui/button'
 import style from './page.module.scss'
+import { useRouter } from 'next/navigation'
+
 function Home() {
+  const router = useRouter()
+
   return (
     <div className={style.container}>
       <div className={style.container__onBoarding}>
@@ -15,6 +21,7 @@ function Home() {
         <Button
           variant="outline"
           className="w-full bg-transparent text-orange-500 border-orange-400 hover:bg-orange-50 hover:text-orange-500"
+          onClick={() => router.push('/create')}
         >
           Add New Page
         </Button>
