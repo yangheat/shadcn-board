@@ -1,14 +1,132 @@
+'use client'
+
 import Image from 'next/image'
+import { useEffect, useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+// Components
 import LabelCalendar from '@/components/calendar/LabelCalendar'
+import BasicBoard from '@/components/common/board/BasicBoard'
 // Shadcn UI
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
-
 // CSS
 import styles from './page.module.scss'
-import BasicBoard from '@/components/common/board/BasicBoard'
+import { supabase } from '@/utils/supabase'
+import { toast } from 'sonner'
+
+interface Todo {
+  id: number
+  title: string
+  start_date: string | Date
+  end_date: string | Date
+  contents: BoardContent[]
+}
+
+interface BoardContent {
+  boardId: string | number
+  isCompleted: boolean
+  title: string
+  startDate: string
+  endDate: string
+  content: string
+}
 
 function page() {
+  const router = useRouter()
+  const pathname = usePathname()
+
+  const [boards, setBoards] = useState<Todo>()
+  const [startDate, setStartDate] = useState<Date | undefined>(new Date())
+  const [endDate, setendDate] = useState<Date | undefined>(new Date())
+
+  const insertRowDate = async (contents: BoardContent[]) => {
+    // Supabase 데이터베이스 연동
+    if (boards?.contents) {
+      const { error, status } = await supabase
+        .from('todos')
+        .update({ contents })
+        .eq('id', pathname.split('/')[2])
+        .select()
+
+      if (error) {
+        console.log(error)
+        toast.error('에러가 발생했습니다.', {
+          description: '콘솔 창에 출력된 에러를 확인하세요.'
+        })
+      }
+
+      if (status === 200) {
+        toast.success('추가 완료', {
+          description: '새로운 Todo Board가 추가되었습니다.'
+        })
+        getData()
+      }
+    } else {
+      const { error, status } = await supabase
+        .from('todos')
+        .insert({ contents })
+        .eq('id', pathname.split('/')[2])
+        .select()
+
+      if (error) {
+        console.log(error)
+        toast.error('에러가 발생했습니다.', {
+          description: '콘솔 창에 출력된 에러를 확인하세요.'
+        })
+      }
+
+      if (status === 201) {
+        toast.success('생성 완료', {
+          description: '새로운 Todo Board가 생성되었습니다.'
+        })
+        getData()
+      }
+    }
+  }
+
+  // Add New Board 버튼을 클릭했을 때
+  const createBoard = () => {
+    let newContents: BoardContent[] = []
+    const BoardContent: BoardContent = {
+      boardId: '',
+      isCompleted: false,
+      title: '',
+      startDate: '',
+      endDate: '',
+      content: ''
+    }
+
+    if (boards && boards.contents.length > 0) {
+      newContents = [...boards.contents]
+      newContents.push(BoardContent)
+      insertRowDate(newContents)
+    } else if (boards && boards.contents.length === 0) {
+      newContents.push(BoardContent)
+      insertRowDate(newContents)
+    }
+  }
+
+  // Supabase에 기존에 생성된 보드가 유무 확인
+  const getData = async () => {
+    const {
+      data: todos,
+      error,
+      status
+    } = await supabase.from('todos').select('*')
+
+    if (todos !== null) {
+      todos.forEach((todo: Todo) => {
+        if (todo.id === Number(pathname.split('/')[2])) {
+          setBoards(todo)
+        }
+      })
+    }
+  }
+
+  useEffect(() => {
+    getData()
+  }, [])
+
   return (
     <div className={styles.container}>
       <header className={styles.container__header}>
@@ -36,6 +154,7 @@ function page() {
             <Button
               variant={'outline'}
               className="w-[15%] border-orange-500 bg-orange-400 text-white hover:bg-orange-400 hover:text-white "
+              onClick={createBoard}
             >
               Add New Board
             </Button>
