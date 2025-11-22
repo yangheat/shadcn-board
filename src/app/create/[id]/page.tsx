@@ -36,7 +36,7 @@ function page() {
   const router = useRouter()
   const pathname = usePathname()
 
-  const [boards, setBoards] = useState<Todo>()
+  const [boards, setBoards] = useState<BoardContent[]>()
   const [startDate, setStartDate] = useState<Date | undefined>(new Date())
   const [endDate, setendDate] = useState<Date | undefined>(new Date())
 
@@ -60,48 +60,6 @@ function page() {
       })
       getData()
     }
-
-    // if (boards?.contents) {
-    //   const { error, status } = await supabase
-    //     .from('todos')
-    //     .update({ contents })
-    //     .eq('id', pathname.split('/')[2])
-    //     .select()
-
-    //   if (error) {
-    //     console.log(error)
-    //     toast.error('에러가 발생했습니다.', {
-    //       description: '콘솔 창에 출력된 에러를 확인하세요.'
-    //     })
-    //   }
-
-    //   if (status === 200) {
-    //     toast.success('추가 완료', {
-    //       description: '새로운 Todo Board가 추가되었습니다.'
-    //     })
-    //     getData()
-    //   }
-    // } else {
-    //   const { error, status } = await supabase
-    //     .from('todos')
-    //     .insert({ contents })
-    //     .eq('id', pathname.split('/')[2])
-    //     .select()
-
-    //   if (error) {
-    //     console.log(error)
-    //     toast.error('에러가 발생했습니다.', {
-    //       description: '콘솔 창에 출력된 에러를 확인하세요.'
-    //     })
-    //   }
-
-    //   if (status === 201) {
-    //     toast.success('생성 완료', {
-    //       description: '새로운 Todo Board가 생성되었습니다.'
-    //     })
-    //     getData()
-    //   }
-    // }
   }
 
   // Add New Board 버튼을 클릭했을 때
@@ -116,11 +74,11 @@ function page() {
       content: ''
     }
 
-    if (boards && boards.contents.length > 0) {
-      newContents.push(...boards.contents)
+    if (boards && boards.length > 0) {
+      newContents.push(...boards)
       newContents.push(BoardContent)
       insertRowDate(newContents)
-    } else if (boards && boards.contents.length === 0) {
+    } else if (boards && boards.length === 0) {
       newContents.push(BoardContent)
       insertRowDate(newContents)
     }
@@ -140,10 +98,7 @@ function page() {
     // page.tsx getData() 함수
     if (todos && todos[0]) {
       const todo = todos[0]
-      setBoards({
-        ...todo,
-        contents: todo.contents
-      })
+      setBoards(todo.contents)
     }
   }
 
@@ -186,7 +141,7 @@ function page() {
         </div>
       </header>
       <main className={styles.container__body}>
-        {boards?.contents.length === 0 ? (
+        {boards?.length === 0 ? (
           <div className="flex items-center justify-center w-full h-full">
             <div className={styles.container__body__infoBox}>
               <span className={styles.title}>There is no board yet.</span>
@@ -205,7 +160,7 @@ function page() {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-start w-full h-full gap-4">
-            {boards?.contents.map((board: BoardContent) => (
+            {boards?.map((board: BoardContent) => (
               <BasicBoard key={board.boardId} />
             ))}
           </div>
