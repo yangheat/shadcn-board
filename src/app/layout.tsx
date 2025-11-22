@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/sonner'
 // 전역 CSS
 import '@/styles/globals.css'
 import SideNavigation from '@/components/common/navigation/SideNavigation'
+import { TodoProvider } from '@/contexts/TodoContext'
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -24,8 +25,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={roboto.className}>
-        <SideNavigation />
-        {children}
+        <TodoProvider>
+          <SideNavigation />
+          {children}
+        </TodoProvider>
         <Toaster />
       </body>
     </html>

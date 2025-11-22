@@ -10,21 +10,25 @@ import styles from './SideNavigation.module.scss'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/utils/supabase'
 import { toast } from 'sonner'
+import { useTodos } from '@/contexts/TodoContext'
 
 function SideNavigation() {
   const router = useRouter()
-  const [todos, setTodos] = useState<any>([])
+  const { todos, refreshTodos } = useTodos()
 
   const onCreate = async () => {
     // 1. Supabase 데이터베이스에 row 생성
-    const { error, status } = await supabase.from('todos').insert([
-      {
-        title: '',
-        start_date: '',
-        end_date: '',
-        contents: ''
-      }
-    ])
+    const { data, error, status } = await supabase
+      .from('todos')
+      .insert([
+        {
+          title: '',
+          start_date: new Date(),
+          end_date: new Date(),
+          contents: []
+        }
+      ])
+      .select()
 
     if (error) {
       console.log(error)
@@ -34,25 +38,21 @@ function SideNavigation() {
       toast('페이지 생성 완료!', {
         description: '새로운 투두리스트가 생성되었습니다.'
       })
-      router.push('/create')
+
+      await refreshTodos()
+      if (data) {
+        // setTodos([data[0], ...todos])
+        router.push(`/create/${data[0].id}`)
+      } else {
+        return
+      }
     }
   }
 
-  // Sypabase에 기존에 생성된 페이지가 있는지 확인
-  const getTodos = async () => {
-    const {
-      data: todos,
-      error,
-      status
-    } = await supabase.from('todos').select('*')
-
-    if (status === 200) {
-      setTodos(todos)
-    }
-  }
-
+  // 마운트 시 초기 데이터 로드
   useEffect(() => {
-    getTodos()
+    console.log('>>> SideNavigation.tsx Rendering')
+    refreshTodos()
   }, [])
 
   return (
