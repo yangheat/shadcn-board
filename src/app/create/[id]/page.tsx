@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
+import { nanoid } from 'nanoid'
 // Components
 import LabelCalendar from '@/components/calendar/LabelCalendar'
 import BasicBoard from '@/components/common/board/BasicBoard'
@@ -86,9 +87,9 @@ function page() {
 
   // Add New Board 버튼을 클릭했을 때
   const createBoard = () => {
-    let newContents: BoardContent[] = []
+    const newContents: BoardContent[] = []
     const BoardContent: BoardContent = {
-      boardId: '',
+      boardId: nanoid(),
       isCompleted: false,
       title: '',
       startDate: '',
@@ -97,7 +98,7 @@ function page() {
     }
 
     if (boards && boards.contents.length > 0) {
-      newContents = [...boards.contents]
+      newContents.push(...boards.contents)
       newContents.push(BoardContent)
       insertRowDate(newContents)
     } else if (boards && boards.contents.length === 0) {
@@ -112,13 +113,17 @@ function page() {
       data: todos,
       error,
       status
-    } = await supabase.from('todos').select('*')
+    } = await supabase
+      .from('todos')
+      .select('*')
+      .eq('id', pathname.split('/')[2])
 
-    if (todos !== null) {
-      todos.forEach((todo: Todo) => {
-        if (todo.id === Number(pathname.split('/')[2])) {
-          setBoards(todo)
-        }
+    // page.tsx getData() 함수
+    if (todos && todos[0]) {
+      const todo = todos[0]
+      setBoards({
+        ...todo,
+        contents: JSON.parse(todo.contents)
       })
     }
   }
@@ -162,21 +167,30 @@ function page() {
         </div>
       </header>
       <main className={styles.container__body}>
-        {/* <div className={styles.container__body__infoBox}>
-          <span className={styles.title}>There is no board yet.</span>
-          <span className={styles.subTitle}>
-            Click the button and start flashing!
-          </span>
-          <button className={styles.button}>
-            <Image
-              src="/assets/images/round-button.png"
-              alt="round-button"
-              width={100}
-              height={100}
-            />
-          </button>
-        </div> */}
-        <BasicBoard />
+        {boards?.contents.length === 0 ? (
+          <div className="flex items-center justify-center w-full h-full">
+            <div className={styles.container__body__infoBox}>
+              <span className={styles.title}>There is no board yet.</span>
+              <span className={styles.subTitle}>
+                Click the button and start flashing!
+              </span>
+              <button className={styles.button}>
+                <Image
+                  src="/assets/images/round-button.png"
+                  alt="round-button"
+                  width={100}
+                  height={100}
+                />
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-start w-full h-full gap-4">
+            {boards?.contents.map((board: BoardContent) => (
+              <BasicBoard key={board.boardId} />
+            ))}
+          </div>
+        )}
       </main>
     </div>
   )
