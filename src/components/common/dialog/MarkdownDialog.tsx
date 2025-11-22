@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { supabase } from '@/utils/supabase'
 // Component
 import LabelCalendar from '@/components/calendar/LabelCalendar'
@@ -21,8 +22,28 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { toast } from 'sonner'
 // CSS
 import styles from './MarkdownDialog.module.scss'
+import { useTodos } from '@/contexts/TodoContext'
+
+interface Todo {
+  id: number
+  title: string
+  start_date: string | Date
+  end_date: string | Date
+  contents: BoardContent[]
+}
+
+interface BoardContent {
+  boardId: string | number
+  isCompleted: boolean
+  title: string
+  startDate: string | Date
+  endDate: string | Date
+  content: string
+}
 
 function MarkdownDialog() {
+  const pathname = usePathname()
+  const { todos } = useTodos()
   const [open, setOpen] = useState<boolean>(false)
   const [title, setTitle] = useState<string>('')
   const [startDate, setStartDate] = useState<Date | undefined>(new Date())
@@ -39,25 +60,47 @@ function MarkdownDialog() {
       })
       return
     } else {
-      // Supabase 데이터베이스 연동
-      const { data, error, status } = await supabase
-        .from('todos')
-        .insert([{ title, content }])
-        .select()
-      if (error) {
-        console.log(error)
-        toast.error('에러가 발생했습니다.', {
-          description: '콘솔 창에 출력된 에러를 확인하세요.'
-        })
-      }
+      // 해당 Board에 대한 데이터만 수정이 되도록 한다.
+      if (todos !== null) {
+        todos.forEach(async (todo: Todo) => {
+          if (todo.id === Number(pathname.split('/')[2])) {
+            todo.contents.forEach((board: BoardContent) => {
+              if (board.boardId === '7RT4_cETpCIKh_duY08Y2') {
+                board.title = title
+                board.content = content
+                board.startDate = startDate
+                board.endDate = endDate
+              } else {
+                board.title = board.title
+                board.content = board.content
+                board.startDate = board.startDate
+                board.endDate = board.endDate
+              }
+            })
 
-      if (status === 201) {
-        toast.success('생성 완료!', {
-          description: '작성한 글이 Supabase에 올바르게 저장되었습니다.'
-        })
+            // Supabase 데이터베이스 연동
+            const { data, error, status } = await supabase
+              .from('todos')
+              .update({ contents: todo.contents })
+              .eq('id', pathname.split('/')[2])
 
-        // 등록 후 조건 초기화
-        setOpen(false)
+            if (error) {
+              console.log(error)
+              toast.error('에러가 발생했습니다.', {
+                description: '콘솔 창에 출력된 에러를 확인하세요.'
+              })
+            }
+
+            if (status === 204) {
+              toast.success('수정 완료!', {
+                description: '작성한 글이 Supabase에 올바르게 수정되었습니다.'
+              })
+
+              // 등록 후 조건 초기화
+              setOpen(false)
+            }
+          }
+        })
       }
     }
   }
