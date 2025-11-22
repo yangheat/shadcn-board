@@ -25,15 +25,15 @@ import styles from './MarkdownDialog.module.scss'
 function MarkdownDialog() {
   const [open, setOpen] = useState<boolean>(false)
   const [title, setTitle] = useState<string>('')
+  const [startDate, setStartDate] = useState<Date | undefined>(new Date())
+  const [endDate, setendDate] = useState<Date | undefined>(new Date())
   const [content, setContent] = useState<string | undefined>(
     '**Hello, World!!**'
   )
 
   // Supabase에 저장
   const onSubmit = async () => {
-    console.log('함수 호출')
-
-    if (!title || !content) {
+    if (!title || !startDate || !endDate || !content) {
       toast('기입되지 않은 데이터(값)가 있습니다.', {
         description: '제목, 날짜 혹은 컨텐츠 값을 모두 작성해주세요.'
       })

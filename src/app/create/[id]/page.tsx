@@ -42,47 +42,66 @@ function page() {
 
   const insertRowDate = async (contents: BoardContent[]) => {
     // Supabase 데이터베이스 연동
-    if (boards?.contents) {
-      const { error, status } = await supabase
-        .from('todos')
-        .update({ contents })
-        .eq('id', pathname.split('/')[2])
-        .select()
+    const { error, status } = await supabase
+      .from('todos')
+      .update({ contents })
+      .eq('id', pathname.split('/')[2])
 
-      if (error) {
-        console.log(error)
-        toast.error('에러가 발생했습니다.', {
-          description: '콘솔 창에 출력된 에러를 확인하세요.'
-        })
-      }
-
-      if (status === 200) {
-        toast.success('추가 완료', {
-          description: '새로운 Todo Board가 추가되었습니다.'
-        })
-        getData()
-      }
-    } else {
-      const { error, status } = await supabase
-        .from('todos')
-        .insert({ contents })
-        .eq('id', pathname.split('/')[2])
-        .select()
-
-      if (error) {
-        console.log(error)
-        toast.error('에러가 발생했습니다.', {
-          description: '콘솔 창에 출력된 에러를 확인하세요.'
-        })
-      }
-
-      if (status === 201) {
-        toast.success('생성 완료', {
-          description: '새로운 Todo Board가 생성되었습니다.'
-        })
-        getData()
-      }
+    if (error) {
+      console.log(error)
+      toast.error('에러가 발생했습니다.', {
+        description: '콘솔 창에 출력된 에러를 확인하세요.'
+      })
     }
+
+    if (status === 204) {
+      toast.success('추가 완료', {
+        description: '새로운 Todo Board가 추가되었습니다.'
+      })
+      getData()
+    }
+
+    // if (boards?.contents) {
+    //   const { error, status } = await supabase
+    //     .from('todos')
+    //     .update({ contents })
+    //     .eq('id', pathname.split('/')[2])
+    //     .select()
+
+    //   if (error) {
+    //     console.log(error)
+    //     toast.error('에러가 발생했습니다.', {
+    //       description: '콘솔 창에 출력된 에러를 확인하세요.'
+    //     })
+    //   }
+
+    //   if (status === 200) {
+    //     toast.success('추가 완료', {
+    //       description: '새로운 Todo Board가 추가되었습니다.'
+    //     })
+    //     getData()
+    //   }
+    // } else {
+    //   const { error, status } = await supabase
+    //     .from('todos')
+    //     .insert({ contents })
+    //     .eq('id', pathname.split('/')[2])
+    //     .select()
+
+    //   if (error) {
+    //     console.log(error)
+    //     toast.error('에러가 발생했습니다.', {
+    //       description: '콘솔 창에 출력된 에러를 확인하세요.'
+    //     })
+    //   }
+
+    //   if (status === 201) {
+    //     toast.success('생성 완료', {
+    //       description: '새로운 Todo Board가 생성되었습니다.'
+    //     })
+    //     getData()
+    //   }
+    // }
   }
 
   // Add New Board 버튼을 클릭했을 때
@@ -123,7 +142,7 @@ function page() {
       const todo = todos[0]
       setBoards({
         ...todo,
-        contents: JSON.parse(todo.contents)
+        contents: todo.contents
       })
     }
   }
