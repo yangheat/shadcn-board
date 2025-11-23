@@ -161,7 +161,7 @@ function page() {
         ) : (
           <div className="flex flex-col items-center justify-start w-full h-full gap-4">
             {boards?.map((board: BoardContent) => (
-              <BasicBoard key={board.boardId} />
+              <BasicBoard key={board.boardId} data={board} />
             ))}
           </div>
         )}

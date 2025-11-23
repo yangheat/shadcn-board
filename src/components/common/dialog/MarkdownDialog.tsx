@@ -41,13 +41,13 @@ interface BoardContent {
   content: string
 }
 
-function MarkdownDialog() {
+function MarkdownDialog({ data }: { data: BoardContent }) {
   const pathname = usePathname()
   const { todos } = useTodos()
   const [open, setOpen] = useState<boolean>(false)
   const [title, setTitle] = useState<string>('')
   const [startDate, setStartDate] = useState<Date | undefined>(new Date())
-  const [endDate, setendDate] = useState<Date | undefined>(new Date())
+  const [endDate, setEndDate] = useState<Date | undefined>(new Date())
   const [content, setContent] = useState<string | undefined>(
     '**Hello, World!!**'
   )
@@ -65,7 +65,7 @@ function MarkdownDialog() {
         todos.forEach(async (todo: Todo) => {
           if (todo.id === Number(pathname.split('/')[2])) {
             todo.contents.forEach((board: BoardContent) => {
-              if (board.boardId === '7RT4_cETpCIKh_duY08Y2') {
+              if (board.boardId === 'U_kpr74XWd216mteigeJH') {
                 board.title = title
                 board.content = content
                 board.startDate = startDate
@@ -107,14 +107,8 @@ function MarkdownDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {/* <Button
-          variant={'ghost'}
-          className="font-normal text-gray-400 hover:text-gray-500 cursor-pointer"
-        >
-          Add Contents
-        </Button> */}
         <span className="font-normal text-gray-400 hover:text-gray-500 cursor-pointer">
-          Add Contents
+          {data.title ? 'Update Contents' : 'Add Contents'}
         </span>
       </DialogTrigger>
       <DialogContent className="max-w-fit!">
@@ -131,8 +125,12 @@ function MarkdownDialog() {
             </div>
           </DialogTitle>
           <div className={styles.dialog__calendarBox}>
-            <LabelCalendar label="From" />
-            <LabelCalendar label="To" />
+            <LabelCalendar
+              label="From"
+              date={startDate}
+              handleDate={setStartDate}
+            />
+            <LabelCalendar label="To" date={endDate} handleDate={setEndDate} />
           </div>
           <Separator />
           <div className={styles.dialog__markdown}>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { Dispatch, SetStateAction } from 'react'
 import { format } from 'date-fns'
 import { Calendar as CalendarIcon } from 'lucide-react'
 
@@ -17,11 +17,11 @@ import styles from './LabelCalendar.module.scss'
 interface Props {
   label: string
   readonly?: boolean
+  date?: Date | undefined
+  handleDate?: Dispatch<SetStateAction<Date | undefined>>
 }
 
-function LabelCalendar({ label, readonly }: Props) {
-  const [date, setDate] = useState<Date>()
-
+function LabelCalendar({ label, readonly, date, handleDate }: Props) {
   return (
     <div className={styles.container}>
       <span className={styles.container__label}>{label}</span>
@@ -39,7 +39,7 @@ function LabelCalendar({ label, readonly }: Props) {
         </PopoverTrigger>
         {!readonly && (
           <PopoverContent className="w-auto p-0">
-            <Calendar mode="single" selected={date} onSelect={setDate} />
+            <Calendar mode="single" selected={date} onSelect={handleDate} />
           </PopoverContent>
         )}
       </Popover>
