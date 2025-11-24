@@ -39,10 +39,9 @@ function SideNavigation() {
         description: '새로운 투두리스트가 생성되었습니다.'
       })
 
-      await refreshTodos()
       if (data) {
-        // setTodos([data[0], ...todos])
         router.push(`/create/${data[0].id}`)
+        await refreshTodos()
       } else {
         return
       }
@@ -51,7 +50,6 @@ function SideNavigation() {
 
   // 마운트 시 초기 데이터 로드
   useEffect(() => {
-    console.log('>>> SideNavigation.tsx Rendering')
     refreshTodos()
   }, [])
 

@@ -14,6 +14,8 @@ import { Button } from '@/components/ui/button'
 import styles from './page.module.scss'
 import { supabase } from '@/utils/supabase'
 import { toast } from 'sonner'
+import { ChevronLeft } from 'lucide-react'
+import { useTodos } from '@/contexts/TodoContext'
 
 interface Todo {
   id: number
@@ -36,9 +38,19 @@ function page() {
   const router = useRouter()
   const pathname = usePathname()
 
-  const [boards, setBoards] = useState<BoardContent[]>()
+  const { todos, refreshTodos } = useTodos()
+  const todo = todos.find((todo) => todo.id === Number(pathname.split('/')[2]))
+  const [boards, setBoards] = useState<BoardContent[]>([])
   const [startDate, setStartDate] = useState<Date | undefined>(new Date())
   const [endDate, setendDate] = useState<Date | undefined>(new Date())
+
+  useEffect(() => {
+    if (todo?.contents) {
+      setBoards(todo.contents)
+    } else {
+      setBoards([])
+    }
+  }, [todos])
 
   const insertRowDate = async (contents: BoardContent[]) => {
     // Supabase 데이터베이스 연동
@@ -58,7 +70,8 @@ function page() {
       toast.success('추가 완료', {
         description: '새로운 Todo Board가 추가되었습니다.'
       })
-      getData()
+      setBoards(contents)
+      todo.contents = contents
     }
   }
 
@@ -74,40 +87,27 @@ function page() {
       content: ''
     }
 
-    if (boards && boards.length > 0) {
-      newContents.push(...boards)
+    if (boards.length === 0) {
       newContents.push(BoardContent)
-      insertRowDate(newContents)
-    } else if (boards && boards.length === 0) {
-      newContents.push(BoardContent)
-      insertRowDate(newContents)
+    } else {
+      newContents.push(...boards, BoardContent)
     }
+    insertRowDate(newContents)
   }
 
-  // Supabase에 기존에 생성된 보드가 유무 확인
-  const getData = async () => {
-    const {
-      data: todos,
-      error,
-      status
-    } = await supabase
-      .from('todos')
-      .select('*')
-      .eq('id', pathname.split('/')[2])
-
-    // page.tsx getData() 함수
-    if (todos && todos[0]) {
-      const todo = todos[0]
-      setBoards(todo.contents)
-    }
-  }
-
-  useEffect(() => {
-    getData()
-  }, [])
+  // 저장
+  const onSave = () => {}
 
   return (
     <div className={styles.container}>
+      <div className="absolute top-6 left-7 flex items-center gap-2">
+        <Button variant={'outline'} size={'icon'} onClick={() => router.back()}>
+          <ChevronLeft />
+        </Button>
+        <Button value={'outline'} onClick={onSave}>
+          저장
+        </Button>
+      </div>
       <header className={styles.container__header}>
         <div className={styles.container__header__contents}>
           <input
@@ -132,7 +132,7 @@ function page() {
             </div>
             <Button
               variant={'outline'}
-              className="w-[15%] border-orange-500 bg-orange-400 text-white hover:bg-orange-400 hover:text-white "
+              className="w-[15%] border-orange-500 bg-orange-400 text-white hover:bg-orange-400 hover:text-white"
               onClick={createBoard}
             >
               Add New Board
@@ -148,7 +148,7 @@ function page() {
               <span className={styles.subTitle}>
                 Click the button and start flashing!
               </span>
-              <button className={styles.button}>
+              <button className={styles.button} onClick={createBoard}>
                 <Image
                   src="/assets/images/round-button.png"
                   alt="round-button"
@@ -159,9 +159,13 @@ function page() {
             </div>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-start w-full h-full gap-4">
+          <div className="flex flex-col items-center justify-start w-full h-full gap-4 overflow-y-scroll">
             {boards?.map((board: BoardContent) => (
-              <BasicBoard key={board.boardId} data={board} />
+              <BasicBoard
+                key={board.boardId}
+                data={board}
+                handleBoards={setBoards}
+              />
             ))}
           </div>
         )}

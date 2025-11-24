@@ -12,6 +12,9 @@ import styles from './BasicBoard.module.scss'
 import { useTodos } from '@/contexts/TodoContext'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
+import { Dispatch, SetStateAction } from 'react'
+import { Card } from '@/components/ui/card'
+import MDEditor from '@uiw/react-md-editor'
 
 interface Todo {
   id: number
@@ -30,10 +33,15 @@ interface BoardContent {
   content: string
 }
 
-function BasicBoard({ data }: { data: BoardContent }) {
+interface Props {
+  data: BoardContent
+  handleBoards: Dispatch<SetStateAction<BoardContent[]>>
+}
+
+function BasicBoard({ data, handleBoards }: Props) {
   const pathname = usePathname()
-  const { todos } = useTodos()
-  const todo = todos?.find((todo) => {
+  const { todos, refreshTodos } = useTodos()
+  let todo = todos?.find((todo) => {
     return todo.id === Number(pathname.split('/')[2])
   })
 
@@ -43,6 +51,7 @@ function BasicBoard({ data }: { data: BoardContent }) {
       const newContents = todo.contents.filter((content: BoardContent) => {
         return content.boardId !== id
       })
+
       // Supabase 데이터베이스 다시 저장
       const { data, error, status } = await supabase
         .from('todos')
@@ -50,6 +59,7 @@ function BasicBoard({ data }: { data: BoardContent }) {
           contents: newContents
         })
         .eq('id', pathname.split('/')[2])
+        .select('*')
 
       if (error) {
         console.log(error)
@@ -58,10 +68,14 @@ function BasicBoard({ data }: { data: BoardContent }) {
         })
       }
 
-      if (status === 204) {
+      if (status === 200) {
         toast.success('삭제가 완료되었습니다.', {
           description: 'Supabase에서 올바르게 삭제되었습니다.'
         })
+        if (data) {
+          handleBoards(data[0].contents)
+          todo.contents = data[0].contents
+        }
       }
     }
   }
@@ -89,11 +103,17 @@ function BasicBoard({ data }: { data: BoardContent }) {
         <div className={styles.container__body__calendsrBox}>
           <div className="flex items-center gap-3">
             <span className="text-[#6d6d6d]">From</span>
-            <Input value={format(data.startDate, 'yyyy-MM-dd')} disabled />
+            <Input
+              value={data.startDate ? format(data.startDate, 'yyyy-MM-dd') : ''}
+              disabled
+            />
           </div>
           <div className="flex items-center gap-3">
             <span className="text-[#6d6d6d]">To</span>
-            <Input value={format(data.endDate, 'yyyy-MM-dd')} disabled />
+            <Input
+              value={data.endDate ? format(data.endDate, 'yyyy-MM-dd') : ''}
+              disabled
+            />
           </div>
         </div>
         <div className={styles.container__body__buttonBox}>
@@ -112,6 +132,11 @@ function BasicBoard({ data }: { data: BoardContent }) {
           </Button>
         </div>
       </div>
+      {data.content && (
+        <Card className="w-full p-4 mb-3">
+          <MDEditor value={data.content} height={100 + '%'} />
+        </Card>
+      )}
       <div className={styles.container__footer}>
         <MarkdownDialog data={data} />
       </div>

@@ -43,7 +43,7 @@ interface BoardContent {
 
 function MarkdownDialog({ data }: { data: BoardContent }) {
   const pathname = usePathname()
-  const { todos } = useTodos()
+  const { todos, refreshTodos } = useTodos()
   const [open, setOpen] = useState<boolean>(false)
   const [title, setTitle] = useState<string>('')
   const [startDate, setStartDate] = useState<Date | undefined>(new Date())
@@ -53,7 +53,7 @@ function MarkdownDialog({ data }: { data: BoardContent }) {
   )
 
   // Supabase에 저장
-  const onSubmit = async () => {
+  const onSubmit = async (id: string | number) => {
     if (!title || !startDate || !endDate || !content) {
       toast('기입되지 않은 데이터(값)가 있습니다.', {
         description: '제목, 날짜 혹은 컨텐츠 값을 모두 작성해주세요.'
@@ -65,7 +65,7 @@ function MarkdownDialog({ data }: { data: BoardContent }) {
         todos.forEach(async (todo: Todo) => {
           if (todo.id === Number(pathname.split('/')[2])) {
             todo.contents.forEach((board: BoardContent) => {
-              if (board.boardId === 'U_kpr74XWd216mteigeJH') {
+              if (board.boardId === id) {
                 board.title = title
                 board.content = content
                 board.startDate = startDate
@@ -98,6 +98,7 @@ function MarkdownDialog({ data }: { data: BoardContent }) {
 
               // 등록 후 조건 초기화
               setOpen(false)
+              refreshTodos()
             }
           }
         })
@@ -119,6 +120,7 @@ function MarkdownDialog({ data }: { data: BoardContent }) {
               <input
                 type="text"
                 placeholder="Write a title for your board."
+                value={data.title || title}
                 className={styles.dialog__titleBox__title}
                 onChange={(event) => setTitle(event.target.value)}
               ></input>
@@ -135,7 +137,7 @@ function MarkdownDialog({ data }: { data: BoardContent }) {
           <Separator />
           <div className={styles.dialog__markdown}>
             <MDEditor
-              value={content}
+              value={data.content || content}
               height={100 + '%'}
               onChange={setContent}
             />
@@ -154,7 +156,7 @@ function MarkdownDialog({ data }: { data: BoardContent }) {
             <Button
               type="submit"
               className="font-normal border-orange-500 bg-orange-400 text-white hover:bg-orange-400 hover:text-white"
-              onClick={onSubmit}
+              onClick={() => onSubmit(data.boardId)}
             >
               Done
             </Button>
