@@ -37,7 +37,9 @@ interface BoardContent {
 function page() {
   const router = useRouter()
   const pathname = usePathname()
+  const id = pathname.split('/')[2]
 
+  const [title, setTitle] = useState<string>('')
   const { todos, refreshTodos } = useTodos()
   const todo = todos.find((todo) => todo.id === Number(pathname.split('/')[2]))
   const [boards, setBoards] = useState<BoardContent[]>([])
@@ -45,9 +47,11 @@ function page() {
   const [endDate, setendDate] = useState<Date | undefined>(new Date())
 
   useEffect(() => {
-    if (todo?.contents) {
+    if (todo) {
+      setTitle(todo.title)
       setBoards(todo.contents)
     } else {
+      setTitle('')
       setBoards([])
     }
   }, [todos])
@@ -57,7 +61,7 @@ function page() {
     const { error, status } = await supabase
       .from('todos')
       .update({ contents })
-      .eq('id', pathname.split('/')[2])
+      .eq('id', id)
 
     if (error) {
       console.log(error)
@@ -96,7 +100,28 @@ function page() {
   }
 
   // 저장
-  const onSave = () => {}
+  const onSave = async () => {
+    const { data, error, status } = await supabase
+      .from('todos')
+      .update({
+        title
+      })
+      .eq('id', id)
+
+    if (error) {
+      toast.error('에러가 발생했습니다.', {
+        description: '콘솔 창에 출력된 에러를 확인하세요/'
+      })
+    }
+
+    if (status === 204) {
+      toast.success('수정 완료!', {
+        description: '작성한 게시물이 Supabase에 올바르게 저장되었습니다.'
+      })
+
+      refreshTodos()
+    }
+  }
 
   return (
     <div className={styles.container}>
@@ -114,6 +139,8 @@ function page() {
             type="text"
             placeholder="Enter Title Here"
             className={styles.input}
+            onChange={(event) => setTitle(event.target.value)}
+            value={title}
           />
           <div className={styles.progressBar}>
             <span className={styles.progressBar__status}>0/10 completed</span>

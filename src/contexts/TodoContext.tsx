@@ -2,6 +2,7 @@
 
 import { supabase } from '@/utils/supabase'
 import { createContext, ReactNode, useContext, useState } from 'react'
+import { toast } from 'sonner'
 
 interface TodoContextType {
   todos: any[]
@@ -15,6 +16,20 @@ export function TodoProvider({ children }: { children: ReactNode }) {
 
   const refreshTodos = async () => {
     const { data, error, status } = await supabase.from('todos').select('*')
+
+    if (error) {
+      toast.error('데이터 로드 실패!', {
+        description: '데이터를 불러오는 중 오류가 발생했습니다.'
+      })
+      return
+    }
+
+    if (data === null || data.length === 0) {
+      toast.error('조회 가능한 데이터가 없습니다.', {
+        description: '조회 가능한 데이터가 없습니다.'
+      })
+      return
+    }
 
     if (status === 200) {
       setTodos(data)
