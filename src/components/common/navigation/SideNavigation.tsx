@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react'
 // Shadcn UI
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button, Input } from '@/components/ui'
 import { Dot, Search } from 'lucide-react'
 // CSS
 import styles from './SideNavigation.module.scss'
@@ -40,7 +39,7 @@ function SideNavigation() {
       })
 
       if (data) {
-        router.push(`/create/${data[0].id}`)
+        router.push(`/task/${data[0].id}`)
         await refreshTodos()
       } else {
         return

@@ -2,9 +2,7 @@ import { usePathname } from 'next/navigation'
 import { supabase } from '@/utils/supabase'
 import MarkdownDialog from '../dialog/MarkdownDialog'
 // Shadcn UI
-import { Checkbox } from '@/components/ui/checkbox'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Checkbox, Button, Input, Card } from '@/components/ui'
 import { ChevronUp } from 'lucide-react'
 
 // CSS
@@ -13,7 +11,6 @@ import { useTodos } from '@/contexts/TodoContext'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 import { Dispatch, SetStateAction } from 'react'
-import { Card } from '@/components/ui/card'
 import MDEditor from '@uiw/react-md-editor'
 
 interface Todo {

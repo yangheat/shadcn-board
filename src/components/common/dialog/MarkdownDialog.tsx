@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { supabase } from '@/utils/supabase'
 // Component
-import LabelCalendar from '@/components/calendar/LabelCalendar'
+import LabelCalendar from '@/components/calendar.bak/LabelCalendar'
 import MDEditor from '@uiw/react-md-editor'
 // Shadcn UI
 import {
@@ -14,11 +14,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { Checkbox } from '@/components/ui/checkbox'
+  DialogTrigger,
+  Button,
+  Separator,
+  Checkbox
+} from '@/components/ui'
 import { toast } from 'sonner'
 // CSS
 import styles from './MarkdownDialog.module.scss'

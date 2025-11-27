@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Noto_Sans_KR } from 'next/font/google'
 // Shadcn UI
-import { Toaster } from '@/components/ui/sonner'
+import { Toaster } from '@/components/ui'
 // 전역 CSS
 import '@/styles/globals.css'
 import SideNavigation from '@/components/common/navigation/SideNavigation'
@@ -22,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="ko">
       <body className={NOTO_SANS_KR.className}>
         <TodoProvider>
           <SideNavigation />

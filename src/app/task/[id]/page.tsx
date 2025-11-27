@@ -5,17 +5,14 @@ import { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { nanoid } from 'nanoid'
 // Components
-import LabelCalendar from '@/components/calendar/LabelCalendar'
-import BasicBoard from '@/components/common/board/BasicBoard'
 // Shadcn UI
-import { Progress } from '@/components/ui/progress'
-import { Button } from '@/components/ui/button'
-// CSS
-import styles from './page.module.scss'
+import { Progress, Button, LabelDatePicker } from '@/components/ui'
 import { supabase } from '@/utils/supabase'
 import { toast } from 'sonner'
 import { ChevronLeft } from 'lucide-react'
 import { useTodos } from '@/contexts/TodoContext'
+
+import styles from './page.module.scss'
 
 interface Todo {
   id: number
@@ -100,7 +97,7 @@ function page() {
   }
 
   // 저장
-  const onSave = async () => {
+  const handleSave = async () => {
     const { data, error, status } = await supabase
       .from('todos')
       .update({
@@ -124,79 +121,51 @@ function page() {
   }
 
   return (
-    <div className={styles.container}>
-      <div className="absolute top-6 left-7 flex items-center gap-2">
-        <Button variant={'outline'} size={'icon'} onClick={() => router.back()}>
+    <div className={styles.header}>
+      <div className={styles['header__btn-box']}>
+        <Button
+          variant={'outline'}
+          size={'icon'}
+          onClick={() => router.push('/')}
+        >
           <ChevronLeft />
         </Button>
-        <Button value={'outline'} onClick={onSave}>
-          저장
+        <div className="flex items-center gap-2">
+          <Button variant={'secondary'} onClick={handleSave}>
+            저장
+          </Button>
+          <Button className="text-rose-600 bg-red-50 hover:bg-rose-50">
+            삭제
+          </Button>
+        </div>
+      </div>
+      <div className={styles.header__top}>
+        {/* 제목 입력 Input 섹션*/}
+        <input
+          type="text"
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          placeholder="Enter Title Here!"
+          className={styles.header__top__input}
+        />
+        {/* 진행상황 척도 그래프 섹션 */}
+        <div className="flex items-center justify-center gap-4">
+          <small className="text-xm font-medium leading-none text-[#6d6d6d]">
+            1/10 Completed
+          </small>
+          <Progress className="w-60 h-[10px]" value={33} />
+        </div>
+      </div>
+      {/* 캘린더 + Add New Board 버튼 섹션 */}
+      <div className={styles.header_bottom}>
+        <div className="flex items-center gap-5">
+          <LabelDatePicker label={'From'} />
+          <LabelDatePicker label={'From'} />
+        </div>
+        <Button className="text-white bg-[#E79057] hover:bg-[#E79057] hover:ring-[#E79057] hover:ring-offset-1 active:bg-[#D5753D] hover:shadow-lg">
+          Add New Board
         </Button>
       </div>
-      <header className={styles.container__header}>
-        <div className={styles.container__header__contents}>
-          <input
-            type="text"
-            placeholder="Enter Title Here"
-            className={styles.input}
-            onChange={(event) => setTitle(event.target.value)}
-            value={title}
-          />
-          <div className={styles.progressBar}>
-            <span className={styles.progressBar__status}>0/10 completed</span>
-            {/* 프로그레스바 UI */}
-            <Progress
-              value={33}
-              className="w-[30%] h-2"
-              indicatorColor="bg-green-500"
-            />
-          </div>
-          <div className={styles.calendarBox}>
-            <div className={styles.calendarBox__calendar}>
-              {/* 캘린더 UI */}
-              <LabelCalendar label="From" readonly={true} />
-              <LabelCalendar label="To" readonly={true} />
-            </div>
-            <Button
-              variant={'outline'}
-              className="w-[15%] border-orange-500 bg-orange-400 text-white hover:bg-orange-400 hover:text-white"
-              onClick={createBoard}
-            >
-              Add New Board
-            </Button>
-          </div>
-        </div>
-      </header>
-      <main className={styles.container__body}>
-        {boards?.length === 0 ? (
-          <div className="flex items-center justify-center w-full h-full">
-            <div className={styles.container__body__infoBox}>
-              <span className={styles.title}>There is no board yet.</span>
-              <span className={styles.subTitle}>
-                Click the button and start flashing!
-              </span>
-              <button className={styles.button} onClick={createBoard}>
-                <Image
-                  src="/assets/images/round-button.png"
-                  alt="round-button"
-                  width={100}
-                  height={100}
-                />
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-start w-full h-full gap-4 overflow-y-scroll">
-            {boards?.map((board: BoardContent) => (
-              <BasicBoard
-                key={board.boardId}
-                data={board}
-                handleBoards={setBoards}
-              />
-            ))}
-          </div>
-        )}
-      </main>
     </div>
   )
 }
