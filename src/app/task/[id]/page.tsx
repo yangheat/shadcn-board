@@ -149,22 +149,22 @@ function page() {
           className={styles.header__top__input}
         />
         {/* 진행상황 척도 그래프 섹션 */}
-        <div className="flex items-center justify-center gap-4">
-          <small className="text-xm font-medium leading-none text-[#6d6d6d]">
+        <div className="flex items-center justify-start gap-4">
+          <small className="text-sm font-medium leading-none text-[#6d6d6d]">
             1/10 Completed
           </small>
           <Progress className="w-60 h-[10px]" value={33} />
         </div>
-      </div>
-      {/* 캘린더 + Add New Board 버튼 섹션 */}
-      <div className={styles.header_bottom}>
-        <div className="flex items-center gap-5">
-          <LabelDatePicker label={'From'} />
-          <LabelDatePicker label={'From'} />
+        {/* 캘린더 + Add New Board 버튼 섹션 */}
+        <div className={styles.header__top__bottom}>
+          <div className="flex items-center gap-5">
+            <LabelDatePicker label={'From'} />
+            <LabelDatePicker label={'From'} />
+          </div>
+          <Button className="text-white bg-[#E79057] hover:bg-[#E79057] hover:ring-[#E79057] hover:ring-offset-1 active:bg-[#D5753D] hover:shadow-lg">
+            Add New Board
+          </Button>
         </div>
-        <Button className="text-white bg-[#E79057] hover:bg-[#E79057] hover:ring-[#E79057] hover:ring-offset-1 active:bg-[#D5753D] hover:shadow-lg">
-          Add New Board
-        </Button>
       </div>
     </div>
   )

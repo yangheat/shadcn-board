@@ -11,8 +11,6 @@ import {
   PopoverContent,
   PopoverTrigger
 } from '@/components/ui'
-// CSS
-import styles from './LabelDatePicker.module.scss'
 
 interface Props {
   label: string
@@ -25,8 +23,10 @@ function LabelDatePicker({ label, readonly }: Props) {
   const [date, setDate] = useState<Date | undefined>(new Date())
 
   return (
-    <div className={styles.container}>
-      <span className={styles.container__label}>{label}</span>
+    <div className="max-w-64 flex items-center gap-3">
+      <span className="text-sm font-medium leading-none text-[#6d6d6d]">
+        {label}
+      </span>
       <Popover>
         <PopoverTrigger asChild>
           <Button
