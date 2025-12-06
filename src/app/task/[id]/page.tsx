@@ -7,7 +7,7 @@ import { nanoid } from 'nanoid'
 // Components
 // Shadcn UI
 import { Progress, Button, LabelDatePicker } from '@/components/ui'
-import { supabase } from '@/utils/supabase'
+import { supabase } from '@/utils/supabase/client'
 import { toast } from 'sonner'
 import { ChevronLeft } from 'lucide-react'
 import { useTodos } from '@/contexts/TodoContext'

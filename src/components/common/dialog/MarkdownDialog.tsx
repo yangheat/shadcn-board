@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { supabase } from '@/utils/supabase'
+import { supabase } from '@/utils/supabase/client'
 // Component
 import LabelCalendar from '@/components/calendar.bak/LabelCalendar'
 import MDEditor from '@uiw/react-md-editor'

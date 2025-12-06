@@ -1,5 +1,5 @@
 import { usePathname } from 'next/navigation'
-import { supabase } from '@/utils/supabase'
+import { supabase } from '@/utils/supabase/client'
 import MarkdownDialog from '../dialog/MarkdownDialog'
 // Shadcn UI
 import { Checkbox, Button, Input, Card } from '@/components/ui'

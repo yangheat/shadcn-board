@@ -1,51 +1,25 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-// Shadcn UI
-import { Button, Input } from '@/components/ui'
-import { Dot, Search } from 'lucide-react'
-// CSS
-import styles from './SideNavigation.module.scss'
-import { useRouter } from 'next/navigation'
-import { supabase } from '@/utils/supabase'
-import { toast } from 'sonner'
+import { useEffect } from 'react'
+
+// Hooks
 import { useTodos } from '@/contexts/TodoContext'
+import { useCreateTask } from '@/hooks/apis'
+
+// Shadcn UI
+import {
+  Button,
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput
+} from '@/components/ui'
+import { Search } from 'lucide-react'
 
 function SideNavigation() {
-  const router = useRouter()
-  const { todos, refreshTodos } = useTodos()
+  const { refreshTodos } = useTodos()
 
-  const onCreate = async () => {
-    // 1. Supabase 데이터베이스에 row 생성
-    const { data, error, status } = await supabase
-      .from('todos')
-      .insert([
-        {
-          title: '',
-          start_date: new Date(),
-          end_date: new Date(),
-          contents: []
-        }
-      ])
-      .select()
-
-    if (error) {
-      console.log(error)
-    }
-
-    if (status === 201) {
-      toast('페이지 생성 완료!', {
-        description: '새로운 투두리스트가 생성되었습니다.'
-      })
-
-      if (data) {
-        router.push(`/task/${data[0].id}`)
-        await refreshTodos()
-      } else {
-        return
-      }
-    }
-  }
+  // TASK 생성
+  const handleCreateTask = useCreateTask()
 
   // 마운트 시 초기 데이터 로드
   useEffect(() => {
@@ -53,46 +27,37 @@ function SideNavigation() {
   }, [])
 
   return (
-    <div className={styles.container}>
-      {/* 검색창 */}
-      <div className={styles.container__searchBox}>
-        <Input
-          type="text"
-          placeholder="검색어를 입력해주세요."
-          className="focus-visible:ring-0"
-        />
-        <Button variant={'outline'} size="icon">
-          <Search className="w-4 h-4" />
-        </Button>
-      </div>
-      <div className={styles.container__buttonBox}>
+    <aside className="page__aside">
+      <div className="flex flex-col h-full gap-3">
+        {/* 검색창 UI */}
+        <InputGroup>
+          <InputGroupInput placeholder="검색어를 입력하세요" />
+          <InputGroupAddon>
+            <Search />
+          </InputGroupAddon>
+        </InputGroup>
+        {/* Add New Page 버튼 UI */}
         <Button
-          variant={'outline'}
-          className="w-full text-orange-500 border-orange-400 hover:bg-orange-50 hover:text-orange-500"
-          onClick={onCreate}
+          className="text-[#E79857] bg-white border border-[#E79857] hover:bg-[#fff9f4]"
+          onClick={handleCreateTask}
         >
           Add New Page
         </Button>
-      </div>
-      <div className={styles.container__todos}>
-        <span className={styles.container__todos__label}>Your To do</span>
-        {/* Is Supabas Todos */}
-        <div className={styles.container__todos__list}>
-          {todos &&
-            todos.map((todo: any) => (
-              <div
-                className="flex items-center py-2 bg-[#f5f5f4] rounded-sm cursor-pointer"
-                key={todo.id}
-              >
-                <Dot className="mr-1 text-green-400"></Dot>
-                <span className="text-sm">
-                  {todo.title === '' ? '제목 업음' : todo.title}
-                </span>
-              </div>
-            ))}
+        {/* Task 목록 UI */}
+        <div className="flex flex-col mt-4 gap-2">
+          <small className="text-sm font-medium leading-none text-[#a6a6a6]">
+            <span className="text-neutral-700">yangheat님</span>의 TASK
+          </small>
+          <ul className="flex flex-col">
+            {/* Supabase에서 생성한 데이터가 없을 경우 */}
+            <li className="bg-[#f5f5f5] min-h-9 flex items-center gap-2 py-2 px-[10px] rounded-sm text-sm text-neutral-400">
+              <div className="h-[6px] w-[6px] rounded-full bg-neutral-400"></div>
+              등록된 Task가 없습니다.
+            </li>
+          </ul>
         </div>
       </div>
-    </div>
+    </aside>
   )
 }
 

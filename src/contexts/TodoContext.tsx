@@ -1,6 +1,6 @@
 'use client'
 
-import { supabase } from '@/utils/supabase'
+import { supabase } from '@/utils/supabase/client'
 import { createContext, ReactNode, useContext, useState } from 'react'
 import { toast } from 'sonner'
 

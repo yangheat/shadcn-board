@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/utils/supabase'
+import { supabase } from '@/utils/supabase/client'
 // Shadcn UI
 import { Button } from '@/components/ui'
 import { toast } from 'sonner'

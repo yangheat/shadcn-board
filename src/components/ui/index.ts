@@ -31,5 +31,14 @@ export {
   PopoverContent,
   PopoverAnchor
 } from './popover/popover'
+export {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupText,
+  InputGroupInput,
+  InputGroupTextarea,
+} from './input-group/input-group'
 export { Separator } from './separator/separator'
 export { Toaster } from './sonner/sonner'
+export { Textarea } from './textarea/textarea'
