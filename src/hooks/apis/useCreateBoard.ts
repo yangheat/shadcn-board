@@ -2,8 +2,6 @@
 
 import { Board } from "@/types"
 import { supabase } from "@/utils/supabase/client"
-import { Description } from "@radix-ui/react-dialog"
-import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
 function useCreateBoard() {

@@ -1,12 +1,13 @@
 'use client'
 
 import { useEffect } from 'react'
+import { useParams, useRouter } from 'next/navigation'
 
 // Hooks
 import { useTodos } from '@/contexts/TodoContext'
-import { useCreateTask } from '@/hooks/apis'
+import { useCreateTask, useGetTasks } from '@/hooks/apis'
 
-// Shadcn UI
+// UI 컴포넌트
 import {
   Button,
   InputGroup,
@@ -14,17 +15,22 @@ import {
   InputGroupInput
 } from '@/components/ui'
 import { Search } from 'lucide-react'
+// 타입
+import { Task } from '@/types'
 
 function SideNavigation() {
+  const router = useRouter()
+  const { id } = useParams()
+  const { tasks, getTasks } = useGetTasks()
   const { refreshTodos } = useTodos()
+
+  // getTasks는 컴포넌트 최초 랜더링 시 한 번만 호출되어야 하므로 useEffect로 호출
+  useEffect(() => {
+    getTasks()
+  }, [id])
 
   // TASK 생성
   const handleCreateTask = useCreateTask()
-
-  // 마운트 시 초기 데이터 로드
-  useEffect(() => {
-    refreshTodos()
-  }, [])
 
   return (
     <aside className="page__aside">
@@ -49,11 +55,36 @@ function SideNavigation() {
             <span className="text-neutral-700">yangheat님</span>의 TASK
           </small>
           <ul className="flex flex-col">
-            {/* Supabase에서 생성한 데이터가 없을 경우 */}
-            <li className="bg-[#f5f5f5] min-h-9 flex items-center gap-2 py-2 px-[10px] rounded-sm text-sm text-neutral-400">
-              <div className="h-[6px] w-[6px] rounded-full bg-neutral-400"></div>
-              등록된 Task가 없습니다.
-            </li>
+            {tasks.length === 0 ? (
+              // Supabase에서 생성한 데이터가 없을 경우
+              <li className="bg-[#f5f5f5] min-h-9 flex items-center gap-2 py-2 px-[10px] rounded-sm text-sm text-neutral-400">
+                <div className="h-[6px] w-[6px] rounded-full bg-neutral-400"></div>
+                등록된 Task가 없습니다.
+              </li>
+            ) : (
+              tasks.map((task: Task) => (
+                <li
+                  key={task.id}
+                  onClick={() => router.push(`/task/${task.id}`)}
+                  className={`${
+                    task.id === Number(id) && 'bg-[#f5f5f5]'
+                  } min-h-9 flex items-center gap-2 py-2 px-[10px] rounded-sm text-sm cursor-pointer`}
+                >
+                  <div
+                    className={`${
+                      task.id === Number(id) ? 'bg-[#00f38d]' : 'bg-neutral-400'
+                    } h-[6px] w-[6px] rounded-full`}
+                  ></div>
+                  <span
+                    className={`${
+                      task.id !== Number(id) && 'text-neutral-400'
+                    }`}
+                  >
+                    {task.title || '등록된 제목이 없습니다.'}
+                  </span>
+                </li>
+              ))
+            )}
           </ul>
         </div>
       </div>

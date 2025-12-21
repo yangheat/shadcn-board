@@ -1,27 +1,16 @@
-import { usePathname } from 'next/navigation'
-import { supabase } from '@/utils/supabase/client'
-import MarkdownDialog from '../dialog/MarkdownDialog'
-// Shadcn UI
+// UI 컴포넌트
+import { MarkdownDialog } from '@/components/common'
 import {
-  Checkbox,
   Button,
-  Input,
+  Checkbox,
   Card,
   LabelDatePicker,
   Separator
 } from '@/components/ui'
+import { Board } from '@/types'
 import { ChevronUp } from 'lucide-react'
 
-// CSS
-import styles from './BasicBoard.module.scss'
-import { useTodos } from '@/contexts/TodoContext'
-import { toast } from 'sonner'
-import { format } from 'date-fns'
-import { Dispatch, SetStateAction } from 'react'
-import MDEditor from '@uiw/react-md-editor'
-import { Board, Task } from '@/types'
-
-function BoardCard() {
+function BoardCard({ board }: { board: Board }) {
   return (
     <Card className="w-full flex flex-col items-center p-5">
       {/* 게시물 카드 제목 영역 */}
@@ -60,9 +49,11 @@ function BoardCard() {
         </div>
       </div>
       <Separator className="my-3" />
-      <Button variant={'ghost'} className="font-normal text-[#6d6d6d">
-        Add Contents
-      </Button>
+      <MarkdownDialog board={board}>
+        <Button variant={'ghost'} className="font-normal text-[#6d6d6d">
+          Add Contents
+        </Button>
+      </MarkdownDialog>
     </Card>
   )
 }
