@@ -16,11 +16,12 @@ function BoardCard({ board }: { board: Board }) {
       {/* 게시물 카드 제목 영역 */}
       <div className="w-full flex items-center justify-between mb-4">
         <div className="w-full flex items-center justify-start gap-2">
-          <Checkbox className="h-5 w-5" checked={true} />
+          <Checkbox className="h-5 w-5" checked={board.isCompleted} />
           <input
             type="text"
             placeholder="등록된 제목이 없습니다."
             className="w-full text-xl outline-none bg-transparent"
+            value={board.title}
             disabled={true}
           />
         </div>
@@ -32,8 +33,8 @@ function BoardCard({ board }: { board: Board }) {
       <div className="w-full flex items-center justify-between">
         {/* 캘린더 박스 */}
         <div className="flex items-center gap-5">
-          <LabelDatePicker label="From" />
-          <LabelDatePicker label="To" />
+          <LabelDatePicker label="From" value={board.startDate} />
+          <LabelDatePicker label="To" value={board.endDate} />
         </div>
         {/* 버튼 박스 */}
         <div className="flex items-center">
@@ -51,7 +52,7 @@ function BoardCard({ board }: { board: Board }) {
       <Separator className="my-3" />
       <MarkdownDialog board={board}>
         <Button variant={'ghost'} className="font-normal text-[#6d6d6d">
-          Add Contents
+          {board.title ? 'Update ' : 'Add '} Contents
         </Button>
       </MarkdownDialog>
     </Card>

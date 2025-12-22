@@ -5,13 +5,11 @@ import { useParams, useRouter } from 'next/navigation'
 import { nanoid } from 'nanoid'
 
 // Hooks
-import { useCreateBoard } from '@/hooks/apis'
+import { useGetTasksById, useCreateBoard } from '@/hooks/apis'
 import { useTodos } from '@/contexts/TodoContext'
 
 // UI Components
 import { Progress, Button, LabelDatePicker } from '@/components/ui'
-import { supabase } from '@/utils/supabase/client'
-import { toast } from 'sonner'
 import { ChevronLeft } from 'lucide-react'
 
 // CSS
@@ -24,7 +22,8 @@ import Image from 'next/image'
 
 function page() {
   const router = useRouter()
-  const id = useParams()
+  const { id } = useParams()
+  const { task } = useGetTasksById(Number(id))
   const createBoard = useCreateBoard()
 
   const [title, setTitle] = useState<string>('')
@@ -32,17 +31,16 @@ function page() {
   const todo = todos.find((todo) => todo.id === Number(id))
   const [boards, setBoards] = useState<Board[]>([])
   const [startDate, setStartDate] = useState<Date | undefined>(undefined)
-  const [endDate, setendDate] = useState<Date | undefined>(undefined)
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined)
 
   useEffect(() => {
-    if (todo) {
-      setTitle(todo.title)
-      setBoards(todo.contents)
-    } else {
-      setTitle('')
-      setBoards([])
+    if (task) {
+      setTitle(task.title || '')
+      setStartDate(task.start_date ? new Date(task.start_date) : undefined)
+      setEndDate(task.end_date ? new Date(task.end_date) : undefined)
+      setBoards(task.boards)
     }
-  }, [todos])
+  }, [task])
 
   // TASK 내의 Board 생성
   const handleAddBoard = () => {
@@ -121,8 +119,8 @@ function page() {
           {/* 캘린더 + Add New Board 버튼 섹션 */}
           <div className={styles.header__top__bottom}>
             <div className="flex items-center gap-5">
-              <LabelDatePicker label={'From'} />
-              <LabelDatePicker label={'From'} />
+              <LabelDatePicker label={'From'} value={startDate} />
+              <LabelDatePicker label={'From'} value={endDate} />
             </div>
             <Button
               className="text-white bg-[#E79057] hover:bg-[#E79057] hover:ring-[#E79057] hover:ring-offset-1 active:bg-[#D5753D] hover:shadow-lg"

@@ -1,9 +1,11 @@
 'use client'
 
-import { ReactNode, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { toast } from 'sonner'
+import { useAtomValue } from 'jotai'
 
+import { taskAtom } from '@/store/atoms'
 import { useTodos } from '@/contexts/TodoContext'
 import { useCreateBoard } from '@/hooks/apis'
 
@@ -35,10 +37,11 @@ interface MarkdownDialogProps {
 function MarkdownDialog({ children, board }: MarkdownDialogProps) {
   const { id } = useParams()
   const updateBoard = useCreateBoard()
+  const task = useAtomValue(taskAtom)
 
   // 해당 컴포넌트에서 사용되는 상태 값
   const { todos, refreshTodos } = useTodos()
-  const { isCompleted, setIsCompleted } = useState<boolean>(false)
+  const [isCompleted, setIsCompleted] = useState<boolean>(false)
   const [isDialogopen, setisDialogOpen] = useState<boolean>(false)
   const [title, setTitle] = useState<string>('')
   const [startDate, setStartDate] = useState<Date | undefined>(undefined)
@@ -49,12 +52,16 @@ function MarkdownDialog({ children, board }: MarkdownDialogProps) {
 
   // 상태 값 초기화
   const initState = () => {
-    setIsCompleted(false)
-    setTitle('')
-    setStartDate(undefined)
-    setEndDate(undefined)
-    setContent('**Hellow, World!!**')
+    setIsCompleted(board.isCompleted || false)
+    setTitle(board.title || '')
+    setStartDate(board.startDate ? new Date(board.startDate) : undefined)
+    setEndDate(board.endDate ? new Date(board.endDate) : undefined)
+    setContent(board.content || '**Hellow, World!!**')
   }
+
+  useEffect(() => {
+    initState()
+  }, [board])
 
   // 다이얼로그 닫기
   const handleCloseDialog = () => {
@@ -75,14 +82,14 @@ function MarkdownDialog({ children, board }: MarkdownDialogProps) {
     // 해당 Board에 대한 데이터만 수정
     try {
       // boards 배열에서 선택한 board를 찾고, 수정된 값으로 업데이트
-      const newBoard = task.boards.map((board: Board) => {
+      const newBoard = task?.boards.map((board: Board) => {
         if (board.id === boardId) {
           return { ...board, isCompleted, title, startDate, endDate, content }
         }
         return board
       })
 
-      await updateBoard(Number(id), 'board', newBoard)
+      await updateBoard(Number(id), 'boards', newBoard)
       handleCloseDialog()
     } catch (error) {
       // 네트워크 오류나 예기치 않은 에러를 잡기 위한 catch 구문 사용
@@ -99,22 +106,19 @@ function MarkdownDialog({ children, board }: MarkdownDialogProps) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {/* <div className={styles.dialog__titleBox}>
-              <Checkbox className="w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Write a title for your board."
-                value={data.title || title}
-                className={styles.dialog__titleBox__title}
-                onChange={(event) => setTitle(event.target.value)}
-              ></input>
-            </div> */}
             <div className="flex items-center justify-start gap-2">
-              <Checkbox className="w-5 min-w-5 h-5" checked={true} />
+              <Checkbox
+                className="w-5 min-w-5 h-5"
+                checked={isCompleted}
+                onCheckedChange={(checked) => {
+                  if (typeof checked === 'boolean') setIsCompleted(checked)
+                }}
+              />
               <input
                 type="text"
                 placeholder="게시물의 제목을 입력하세요."
                 className="w-full text-xl outline-none bg-transparent"
+                value={title}
                 onChange={(event) => setTitle(event.target.value)}
               />
             </div>
@@ -125,12 +129,16 @@ function MarkdownDialog({ children, board }: MarkdownDialogProps) {
         </DialogHeader>
         {/* 캘린더 박스 */}
         <div className="flex items-center gap-5">
-          <LabelDatePicker label="From" />
-          <LabelDatePicker label="To" />
+          <LabelDatePicker
+            label="From"
+            value={startDate}
+            onChange={setStartDate}
+          />
+          <LabelDatePicker label="To" value={endDate} onChange={setEndDate} />
         </div>
         <Separator />
         {/* 마크다운 에디터 UI 영역 */}
-        <MDEditor height={320 + 'px'} onChange={setContent} />
+        <MDEditor height={320 + 'px'} value={content} onChange={setContent} />
         <DialogFooter>
           <DialogClose asChild>
             <Button variant={'outline'}>취소</Button>
