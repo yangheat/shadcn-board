@@ -17,7 +17,7 @@ import styles from './page.module.scss'
 
 // Types
 import { Board } from '@/types'
-import { BoardCard } from '@/components/common'
+import { BoardCard, DeleteTaskPopup } from '@/components/common'
 import Image from 'next/image'
 
 function page() {
@@ -92,12 +92,18 @@ function page() {
             <ChevronLeft />
           </Button>
           <div className="flex items-center gap-2">
-            <Button variant={'secondary'} onClick={handleSave}>
+            <Button
+              variant={'secondary'}
+              onClick={handleSave}
+              className="cursor-pointer"
+            >
               저장
             </Button>
-            <Button className="text-rose-600 bg-red-50 hover:bg-rose-50">
-              삭제
-            </Button>
+            <DeleteTaskPopup>
+              <Button className="text-rose-600 bg-red-50 hover:bg-rose-50 cursor-pointer">
+                삭제
+              </Button>
+            </DeleteTaskPopup>
           </div>
         </div>
         <div className={styles.header__top}>

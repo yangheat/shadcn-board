@@ -1,9 +1,7 @@
 import type { Metadata } from 'next'
 import { Noto_Sans_KR } from 'next/font/google'
 import { TodoProvider } from '@/contexts/TodoContext'
-// Components
-import SideNavigation from '@/components/common/navigation/SideNavigation'
-// Shadcn UI
+import { SideNavigation } from '@/components/common'
 import { Toaster } from '@/components/ui'
 // 전역 CSS
 import '@/styles/globals.css'

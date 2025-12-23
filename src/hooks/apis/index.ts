@@ -1,4 +1,5 @@
 export { useCreateBoard } from './useCreateBoard'
 export { useCreateTask } from './useCreateTask'
+export { useDeleteTask } from './useDeleteTask'
 export { useGetTasksById } from './useGetTaskById'
 export { useGetTasks } from './useGetTasks'
