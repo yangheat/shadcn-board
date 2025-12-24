@@ -1,3 +1,7 @@
+'use client'
+
+import { useDeleteBoard } from '@/hooks/apis'
+import { useParams } from 'next/navigation'
 // UI 컴포넌트
 import { MarkdownDialog } from '@/components/common'
 import {
@@ -7,10 +11,15 @@ import {
   LabelDatePicker,
   Separator
 } from '@/components/ui'
-import { Board } from '@/types'
 import { ChevronUp } from 'lucide-react'
+// 타입
+import { Board } from '@/types'
 
 function BoardCard({ board }: { board: Board }) {
+  const { id } = useParams()
+  // TASK의 TODO-BOARD 1건 삭제
+  const handleDeleteBoard = useDeleteBoard(Number(id), board.id)
+
   return (
     <Card className="w-full flex flex-col items-center p-5">
       {/* 게시물 카드 제목 영역 */}
@@ -33,8 +42,12 @@ function BoardCard({ board }: { board: Board }) {
       <div className="w-full flex items-center justify-between">
         {/* 캘린더 박스 */}
         <div className="flex items-center gap-5">
-          <LabelDatePicker label="From" value={board.startDate} />
-          <LabelDatePicker label="To" value={board.endDate} />
+          <LabelDatePicker
+            label="From"
+            value={board.startDate}
+            readonly={true}
+          />
+          <LabelDatePicker label="To" value={board.endDate} readonly={true} />
         </div>
         {/* 버튼 박스 */}
         <div className="flex items-center">
@@ -44,6 +57,7 @@ function BoardCard({ board }: { board: Board }) {
           <Button
             variant={'ghost'}
             className="font-normal text-rose-600 hover:text-rose-600 hover:bg-red-50"
+            onClick={handleDeleteBoard}
           >
             Delete
           </Button>

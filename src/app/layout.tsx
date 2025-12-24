@@ -30,7 +30,7 @@ export default function RootLayout({
             <main className="page__main">{children}</main>
           </div>
         </TodoProvider>
-        <Toaster />
+        <Toaster richColors={true} />
       </body>
     </html>
   )

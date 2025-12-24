@@ -9,7 +9,7 @@ function useDeleteTask() {
   const router = useRouter()
   const deleteTask = async (taskId: number) => {
     try {
-      const { data, status, error } = await supabase.from('tasks').delete().eq('id', taskId).select()
+      const { status, error } = await supabase.from('tasks').delete().eq('id', taskId)
 
       if (status === 204) {
         toast.success('선택한 TASK가 삭제되었습니다.',
