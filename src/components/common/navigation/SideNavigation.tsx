@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 
 // Hooks
@@ -17,13 +17,14 @@ import {
 import { Search } from 'lucide-react'
 // 타입
 import { Task } from '@/types'
+import { useSearch } from '@/hooks/apis/useSearch'
 
 function SideNavigation() {
   const router = useRouter()
   const { id } = useParams()
   const { tasks, getTasks } = useGetTasks()
-  const { refreshTodos } = useTodos()
-
+  const { search } = useSearch()
+  const [searchTerm, setSearchTerm] = useState<string>('')
   // getTasks는 컴포넌트 최초 랜더링 시 한 번만 호출되어야 하므로 useEffect로 호출
   useEffect(() => {
     getTasks()
@@ -32,12 +33,27 @@ function SideNavigation() {
   // TASK 생성
   const handleCreateTask = useCreateTask()
 
+  const handleSearchTermChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value)
+  }
+
+  const handleSearch = async (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      // useSearch 훅이 동작하도록 한다.
+      search(searchTerm)
+    }
+  }
+
   return (
     <aside className="page__aside">
       <div className="flex flex-col h-full gap-3">
         {/* 검색창 UI */}
         <InputGroup>
-          <InputGroupInput placeholder="검색어를 입력하세요" />
+          <InputGroupInput
+            placeholder="검색어를 입력하세요"
+            onChange={handleSearchTermChange}
+            onKeyDown={handleSearch}
+          />
           <InputGroupAddon>
             <Search />
           </InputGroupAddon>

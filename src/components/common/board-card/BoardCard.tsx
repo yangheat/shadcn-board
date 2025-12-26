@@ -15,7 +15,8 @@ import {
   LabelDatePicker,
   Separator
 } from '@/components/ui'
-import { ChevronUp } from 'lucide-react'
+import MDEditor from '@uiw/react-md-editor'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 // 타입
 import { Board } from '@/types'
 
@@ -34,6 +35,7 @@ function BoardCard({ board }: { board: Board }) {
   const [endDate, setEndDate] = useState<Date | undefined>(
     board.endDate ? new Date(board.endDate) : undefined
   )
+  const [isShowContent, setIsShowContent] = useState<boolean>(false)
 
   const handleSaveBoard = async (boardId: string) => {
     if (!board.title) {
@@ -85,8 +87,16 @@ function BoardCard({ board }: { board: Board }) {
             disabled={true}
           />
         </div>
-        <Button variant={'ghost'} size={'icon'}>
-          <ChevronUp className="text-[#6d6d6d]" />
+        <Button
+          variant={'ghost'}
+          size={'icon'}
+          onClick={() => setIsShowContent((prev) => !prev)}
+        >
+          {isShowContent ? (
+            <ChevronUp className="text-[#6d6d6d]" />
+          ) : (
+            <ChevronDown className="text-[#6d6d6d]" />
+          )}
         </Button>
       </div>
       {/* 캘린더 및 버튼 박스 영역 */}
@@ -118,6 +128,13 @@ function BoardCard({ board }: { board: Board }) {
           </Button>
         </div>
       </div>
+      {isShowContent && (
+        <MDEditor
+          height={320 + 'px'}
+          value={board.content ? board.content : '**Hellow, World!!**'}
+          className="w-full mt-[16px]"
+        />
+      )}
       <Separator className="my-3" />
       <MarkdownDialog board={board}>
         <Button variant={'ghost'} className="font-normal text-[#6d6d6d">
