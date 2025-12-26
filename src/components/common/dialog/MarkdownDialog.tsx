@@ -7,10 +7,10 @@ import { useAtomValue } from 'jotai'
 
 import { taskAtom } from '@/store/atoms'
 import { useTodos } from '@/contexts/TodoContext'
-import { useCreateBoard } from '@/hooks/apis'
+import { useCreateBoard, useGetTasksById } from '@/hooks/apis'
 
 // 타입
-import { Task, Board } from '@/types'
+import { Board } from '@/types'
 
 // UI 컴포넌트
 import MDEditor from '@uiw/react-md-editor'
@@ -38,11 +38,12 @@ function MarkdownDialog({ children, board }: MarkdownDialogProps) {
   const { id } = useParams()
   const updateBoard = useCreateBoard()
   const task = useAtomValue(taskAtom)
+  const { getTaskById } = useGetTasksById(Number(id))
 
   // 해당 컴포넌트에서 사용되는 상태 값
   const { todos, refreshTodos } = useTodos()
   const [isCompleted, setIsCompleted] = useState<boolean>(false)
-  const [isDialogopen, setisDialogOpen] = useState<boolean>(false)
+  const [isDialogOpen, setisDialogOpen] = useState<boolean>(false)
   const [title, setTitle] = useState<string>('')
   const [startDate, setStartDate] = useState<Date | undefined>(undefined)
   const [endDate, setEndDate] = useState<Date | undefined>(undefined)
@@ -60,8 +61,10 @@ function MarkdownDialog({ children, board }: MarkdownDialogProps) {
   }
 
   useEffect(() => {
-    initState()
-  }, [board])
+    if (isDialogOpen) {
+      initState() // Dialog가 열릴 때만 상태 초기화
+    }
+  }, [isDialogOpen]) // isDialogOpen이 변경될 때만 실행
 
   // 다이얼로그 닫기
   const handleCloseDialog = () => {
@@ -91,6 +94,7 @@ function MarkdownDialog({ children, board }: MarkdownDialogProps) {
 
       await updateBoard(Number(id), 'boards', newBoard)
       handleCloseDialog()
+      getTaskById()
     } catch (error) {
       // 네트워크 오류나 예기치 않은 에러를 잡기 위한 catch 구문 사용
       toast.error('네트워크 오류', {
@@ -101,7 +105,7 @@ function MarkdownDialog({ children, board }: MarkdownDialogProps) {
   }
 
   return (
-    <Dialog open={isDialogopen} onOpenChange={setisDialogOpen}>
+    <Dialog open={isDialogOpen} onOpenChange={setisDialogOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -133,8 +137,14 @@ function MarkdownDialog({ children, board }: MarkdownDialogProps) {
             label="From"
             value={startDate}
             onChange={setStartDate}
+            readonly={true}
           />
-          <LabelDatePicker label="To" value={endDate} onChange={setEndDate} />
+          <LabelDatePicker
+            label="To"
+            value={endDate}
+            onChange={setEndDate}
+            readonly={true}
+          />
         </div>
         <Separator />
         {/* 마크다운 에디터 UI 영역 */}

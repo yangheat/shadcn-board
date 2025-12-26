@@ -36,6 +36,7 @@ function page() {
   const [boards, setBoards] = useState<Board[]>([])
   const [startDate, setStartDate] = useState<Date | undefined>(undefined)
   const [endDate, setEndDate] = useState<Date | undefined>(undefined)
+  const [count, setCount] = useState<number>(0)
 
   useEffect(() => {
     if (task) {
@@ -106,6 +107,15 @@ function page() {
     }
   }
 
+  useEffect(() => {
+    if (task?.boards) {
+      const completed = task.boards.filter(
+        (board: Board) => board.isCompleted
+      ).length
+      setCount(completed)
+    }
+  }, [task?.boards])
+
   return (
     <>
       <div className={styles.header}>
@@ -144,9 +154,16 @@ function page() {
           {/* 진행상황 척도 그래프 섹션 */}
           <div className="flex items-center justify-start gap-4">
             <small className="text-sm font-medium leading-none text-[#6d6d6d]">
-              1/10 Completed
+              {count}/{task?.boards.length} Completed
             </small>
-            <Progress className="w-60 h-[10px]" value={33} />
+            <Progress
+              className="w-60 h-[10px]"
+              value={
+                task && task.boards.length > 0
+                  ? (count / task.boards.length) * 100
+                  : 0
+              }
+            />
           </div>
           {/* 캘린더 + Add New Board 버튼 섹션 */}
           <div className={styles.header__top__bottom}>
