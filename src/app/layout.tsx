@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 import { Noto_Sans_KR } from 'next/font/google'
-import { TodoProvider } from '@/contexts/TodoContext'
-import { SideNavigation } from '@/components/common'
-import { Toaster } from '@/components/ui'
+import { TodoProvider } from '@/entities/todo'
+import { SideNavigation } from '@/widgets'
+import { Toaster } from '@/shared/ui'
 // 전역 CSS
-import '@/styles/globals.css'
-import '@/styles/main.scss'
+import '@/shared/styles/globals.css'
+import '@/shared/styles/main.scss'
 
 const NOTO_SANS_KR = Noto_Sans_KR({
   subsets: ['latin']

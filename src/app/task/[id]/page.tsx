@@ -1,54 +1,42 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { nanoid } from 'nanoid'
 
 // Hooks
-import { useGetTasksById, useCreateBoard, useGetTasks } from '@/hooks/apis'
-import { useTodos } from '@/contexts/TodoContext'
+import { useGetTasksById, useGetTasks } from '@/entities/task'
+import { useCreateBoard } from '@/features/board'
 
 // UI Components
-import { Progress, Button, LabelDatePicker } from '@/components/ui'
+import { Progress, Button, LabelDatePicker } from '@/shared/ui'
 import { ChevronLeft } from 'lucide-react'
 
 // CSS
 import styles from './page.module.scss'
 
 // Types
-import { Board } from '@/types'
-import { BoardCard, DeleteTaskPopup } from '@/components/common'
+import { Board } from '@/entities/board'
+import { BoardCard } from '@/widgets'
+import { DeleteTaskPopup } from '@/features/task'
 import Image from 'next/image'
-import { describe } from 'node:test'
 import { toast } from 'sonner'
-import { supabase } from '@/utils/supabase/client'
+import { supabase } from '@/shared/api/supabase/client'
 
-function page() {
+function TaskPage() {
   const router = useRouter()
   const { id } = useParams()
-  const { task } = useGetTasksById(Number(id))
+  const { task, setTask } = useGetTasksById(Number(id))
   const createBoard = useCreateBoard()
   const { getTasks } = useGetTasks()
 
-  const [title, setTitle] = useState<string>('')
-  const { todos, refreshTodos } = useTodos()
-  const todo = todos.find((todo) => todo.id === Number(id))
-  const [boards, setBoards] = useState<Board[]>([])
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined)
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined)
-  const [count, setCount] = useState<number>(0)
-
-  useEffect(() => {
-    if (task) {
-      setTitle(task.title || '')
-      setStartDate(task.start_date ? new Date(task.start_date) : undefined)
-      setEndDate(task.end_date ? new Date(task.end_date) : undefined)
-      setBoards(task.boards)
-    }
-  }, [task])
+  const boards = task?.boards ?? []
+  const completedCount = task
+    ? task.boards.filter((board: Board) => board.isCompleted).length
+    : 0
 
   // TASK 내의 Board 생성
   const handleAddBoard = () => {
+    if (!task) return
     const newBoard: Board = {
       id: nanoid(),
       isCompleted: false,
@@ -58,15 +46,15 @@ function page() {
       content: ''
     }
 
-    const newBoards = [...boards, newBoard]
-    setBoards(newBoards)
+    const newBoards = [...task.boards, newBoard]
+    setTask({ ...task, boards: newBoards })
     // 실제 Supabase와 통신하는 Hook 로직
     createBoard(Number(id), 'boards', newBoards)
   }
 
   // 저장
   const handleSave = async () => {
-    if (!title || !startDate || !endDate) {
+    if (!task?.title || !task.start_date || !task.end_date) {
       toast.error('기입되지 않은 데이터(값)가 있습니다.', {
         description: '제목, 시작일, 종료일은 필수 값입니다.'
       })
@@ -77,9 +65,9 @@ function page() {
       const { data, status, error } = await supabase
         .from('tasks')
         .update({
-          title,
-          start_date: startDate,
-          end_date: endDate
+          title: task.title,
+          start_date: task.start_date,
+          end_date: task.end_date
         })
         .eq('id', Number(id))
         .select()
@@ -106,15 +94,6 @@ function page() {
       })
     }
   }
-
-  useEffect(() => {
-    if (task?.boards) {
-      const completed = task.boards.filter(
-        (board: Board) => board.isCompleted
-      ).length
-      setCount(completed)
-    }
-  }, [task?.boards])
 
   return (
     <>
@@ -146,21 +125,24 @@ function page() {
           {/* 제목 입력 Input 섹션*/}
           <input
             type="text"
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
+            value={task?.title ?? ''}
+            onChange={(event) => {
+              if (!task) return
+              setTask({ ...task, title: event.target.value })
+            }}
             placeholder="Enter Title Here!"
             className={styles.header__top__input}
           />
           {/* 진행상황 척도 그래프 섹션 */}
           <div className="flex items-center justify-start gap-4">
             <small className="text-sm font-medium leading-none text-[#6d6d6d]">
-              {count}/{task?.boards.length} Completed
+              {completedCount}/{boards.length} Completed
             </small>
             <Progress
               className="w-60 h-[10px]"
               value={
-                task && task.boards.length > 0
-                  ? (count / task.boards.length) * 100
+                boards.length > 0
+                  ? (completedCount / boards.length) * 100
                   : 0
               }
             />
@@ -170,13 +152,19 @@ function page() {
             <div className="flex items-center gap-5">
               <LabelDatePicker
                 label={'From'}
-                value={startDate}
-                onChange={setStartDate}
+                value={task?.start_date}
+                onChange={(value) => {
+                  if (!task) return
+                  setTask({ ...task, start_date: value })
+                }}
               />
               <LabelDatePicker
                 label={'From'}
-                value={endDate}
-                onChange={setEndDate}
+                value={task?.end_date}
+                onChange={(value) => {
+                  if (!task) return
+                  setTask({ ...task, end_date: value })
+                }}
               />
             </div>
             <Button
@@ -220,4 +208,4 @@ function page() {
   )
 }
 
-export default page
+export default TaskPage

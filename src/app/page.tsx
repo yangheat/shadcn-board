@@ -1,9 +1,9 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/utils/supabase/client'
+import { supabase } from '@/shared/api/supabase/client'
 // Shadcn UI
-import { Button } from '@/components/ui'
+import { Button } from '@/shared/ui'
 import { toast } from 'sonner'
 
 function InitPage() {
